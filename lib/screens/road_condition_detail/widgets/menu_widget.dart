@@ -196,7 +196,19 @@ class MenuWidget extends StatelessWidget {
                 // CommonUtils.loadObjectFromPreference<Favorites2>("favorite", (r) => Favorites2.fromJson(r, (t) => Routes.fromJson(t)))
                 //   .then((r) => print(r?.object));
 
-                  CommonUtils.saveObjectListInPreference<Favorites2>("favorite", favoriteObject, (r) => r.toJson((s) => s.toJson()), (r) => r.type, );
+                  CommonUtils.saveObjectListInPreference<Favorites2>("favorite", favoriteObject, (r) => r.toJson((s) => s.toJson()), (r) => r.type,(json) {
+                    final type = json['type'];
+
+                    if (type.startsWith("route")) {
+                      return Favorites2.fromJson(json, (obj) => Routes.fromJson(obj));
+                    } else if (type.startsWith("cctv")) {
+                      // return Favorites2.fromJson(json, (obj) => CCTV.fromJson(obj));
+                    } else if (type.startsWith("news")) {
+                      // return Favorites2.fromJson(json, (obj) => News.fromJson(obj));
+                    }
+
+                    throw UnsupportedError("Unknown type: $type");
+                  }, );
 
                   // List<Favorites2> list = [];
                   // list.add(favoriteObject);

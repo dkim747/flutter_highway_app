@@ -26,14 +26,17 @@ class CommonUtils {
 
     try{
 
-      final prefs = await SharedPreferences.getInstance();
-      final json = jsonEncode(toJsonFunc(object));
-      // print("어렵다-==---------$json");
-      await prefs.setString(key, json);
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      final String jsonObject = jsonEncode(toJsonFunc(object));
+
+      await prefs.setString(key, jsonObject);
+
     } catch(e) {
 
       print(e);
     }
+
   }
 
   //shared_preference에서 객체 불러올 공통 함수
@@ -41,24 +44,26 @@ class CommonUtils {
 
     try {
 
-      final prefs = await SharedPreferences.getInstance();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-      final jsonString = prefs.getString(key);
+      final String? jsonString = prefs.getString(key);
 
       if (jsonString == null) {
 
         return null;
       }
 
-      final jsonMap = jsonDecode(jsonString);
+      final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
 
       return fromJsonFunc(jsonMap);
 
     } catch(e) {
 
       print(e);
+
       return null;
     }
+
   }
 
   static Future<void> saveObjectListInPreference<T>(String key, T object,
@@ -66,45 +71,41 @@ class CommonUtils {
 
     try{
 
-      final prefs = await SharedPreferences.getInstance();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
 
       // prefs.remove("favorite");
 
-      final json = jsonEncode(toJsonFunc(object));
+      final String json = jsonEncode(toJsonFunc(object));
 
       /////////
-      final objectId = getIdFunc(object);
-      print("오브젝트 아이디===========$objectId");
-
+      final String objectId = getIdFunc(object);
 
       // List<String>? existingList = prefs.getStringList(key);
 
       List<String> existingList = prefs.getStringList(key) ?? [];
 
-      print("asdasdasdasd$existingList");
-
       // 중복 체크: 기존 리스트에서 같은 ID가 있는지 확인
-
 
       // if(existingList != null) {
 
         // final existingObject = existingList.
 
-      print("실행됌11111111111111111111");
-        final exists = existingList.any((item) {
-          final decoded = jsonDecode(item);
-          final existingId = getIdFunc(fromJsonFunc(decoded));
+      final exists = existingList.any((item) {
+        print("아이템====================$item");
+        //여기에서 jsonDecode를 해야하는 이유? 그냥 바로 item.type 이런식으로
+        final decoded = jsonDecode(item);
+        final existingId = getIdFunc(fromJsonFunc(decoded));
 
-          return existingId == objectId;
-        });
-      print("실행됌2222222222222222222222");
-        if(!exists) {
-          existingList.add(json);
-          await prefs.setStringList(key, existingList);
-          print("저장됌-=-=-=-=-=-=-=-=-=-");
-        } else {
-          print("이미 존재한다-----------");
-        }
+        return existingId == objectId;
+      });
+
+      if(!exists) {
+        existingList.add(json);
+        await prefs.setStringList(key, existingList);
+        print("저장됌-=-=-=-=-=-=-=-=-=-");
+      } else {
+        print("이미 존재한다-----------");
+      }
 
       // } else {
       //   List<String> newList = [];
@@ -113,8 +114,6 @@ class CommonUtils {
       //
       //   await prefs.setStringList(key, newList);
       // }
-
-
 
     } catch(e) {
 

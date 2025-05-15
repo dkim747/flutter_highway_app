@@ -50,7 +50,7 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
     //   r.routeCd == routeNo,
     // ).toList();
 
-
+    //굳이 이렇게 할 필요 없지만 제네릭으로 함수 만들어 보려고 함수 만듬
     final filteredRouteList = RoadConditionDetailsUtils.getFilteredList(routeList,
                                                                         (r) => r.driveDrctDc == selectedDirection
                                                                             && r.routeCd == routeNo
@@ -73,7 +73,6 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
     // final int _selectedIndex;
 
     String id = "route$routeNo$selectedDirection";
-    print("idddddddddddddddddd===============$id");
 
     return BaseLayout(
       title: routeName,
@@ -84,7 +83,7 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
           DirectionSwitchingWidget(
             selectedDirection: selectedDirection,
             onDirectionChanged: (direction) {
-              print("방향넘어온다------------------------- $direction");
+
               setState(() {
                 selectedDirection = direction;
                 // routeList = filteredRoute;
@@ -98,8 +97,6 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
             // selectedIndex: selectedIconIndex,
             selectedIcon: selectedIcon,
             onSelected: (icon) {
-              print("넘어온 인덱스 $icon");
-              print("선택된 아이콘 인덱스 $selectedIcon");
               setState(() {
                 selectedIcon == icon
                     ? selectedIcon = null
@@ -109,7 +106,6 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
             routeNo: routeNo,
             isFavorite: isFavorite,
             onTabFavorite: () {
-              print("아이콘 눌림");
               // if(icon == Icons.star_border_sharp) {
               setState(() {
                 isFavorite = !isFavorite;

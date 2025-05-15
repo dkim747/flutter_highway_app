@@ -7,6 +7,7 @@ class RoadConditionDetailsUtils {
     if(spd < 40) {
 
       return Colors.red;
+
     } else if(spd >= 40 && spd < 80) {
 
       return Colors.yellow;
