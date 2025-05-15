@@ -15,8 +15,8 @@ class _TrafficMapState extends State<TrafficMapScreen> {
 
     return BaseLayout(
         title: "교통지도",
-        child: Container(color: Colors.red,),
-        screenIndex: 0
+        screenIndex: 0,
+        child: Container(color: Colors.red,)
     );
   }
 }

@@ -1,8 +1,5 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../common_model/favorites2.dart';
-import '../screens/road_condition/interface/jsonencodable_interface.dart';
-import '../screens/road_condition/model/routes.dart';
 
 class CommonUtils {
 

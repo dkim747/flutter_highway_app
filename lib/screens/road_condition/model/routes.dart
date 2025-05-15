@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import '../interface/jsonencodable_interface.dart';
 
 part 'routes.g.dart';
 

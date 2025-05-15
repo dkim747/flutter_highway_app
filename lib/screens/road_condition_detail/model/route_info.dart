@@ -1,5 +1,3 @@
-import 'direction.dart';
-
 class RouteInfo {
   final String routeCd;
   final String driveDrctDc;

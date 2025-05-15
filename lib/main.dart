@@ -1,7 +1,6 @@
 import 'package:app1/provider/notice_controller.dart';
 import 'package:app1/screens/road_condition/road_condition.dart';
 import 'package:app1/screens/road_condition_detail/road_condition_detail.dart';
-import 'package:app1/screens/road_condition_detail/road_condition_detail.dart';
 import 'package:app1/screens/traffic_map/traffic_map.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -60,6 +59,7 @@ class MyApp extends StatelessWidget {
                 transitionDuration: Duration(seconds: 0)
             );
         }
+        return null;
       },
     );
   }

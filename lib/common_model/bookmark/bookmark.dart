@@ -5,19 +5,22 @@ class Bookmark {
   final String id;
   final String type;
   final Map<String, dynamic> objectMap;
+  final String direction;
   // final DateTime addedAt;
 
   Bookmark({
     required this.id,
     required this.type,
-    required this.objectMap
+    required this.objectMap,
+    required this.direction
   });
 
   Map<String, dynamic> toMap() {
     return {
       "id": id,
       "type": type,
-      "objectMap": jsonEncode(objectMap)
+      "objectMap": jsonEncode(objectMap),
+      "direction": direction
     };
   }
 
@@ -26,7 +29,8 @@ class Bookmark {
     return Bookmark(
       id: map['id'],
       type: map['type'],
-      objectMap: jsonDecode(map['objectMap'])
+      objectMap: jsonDecode(map['objectMap']),
+      direction: map['direction']
     );
   }
 }
