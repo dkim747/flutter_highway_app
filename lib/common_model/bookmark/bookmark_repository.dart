@@ -10,18 +10,18 @@ class BookmarkRepository {
 
   Future<void> insertBookmark(Bookmark bookmark) async {
 
-  final Database db = await databaseHelper.database;
+    final Database db = await databaseHelper.database;
 
-  await db.insert(
-    'bookmark',
-    {
-      'id': bookmark.id,
-      'type': bookmark.type,
-      'objectMap': jsonEncode(bookmark.objectMap),
-    },
-    // conflictAlgorithm: ConflictAlgorithm.replace,
-  );
-}
+    await db.insert(
+      'bookmark',
+      {
+        'id': bookmark.id,
+        'type': bookmark.type,
+        'objectMap': jsonEncode(bookmark.objectMap),
+      },
+      // conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
 
 // get all bookmarks
 Future<List<Bookmark>> getBookmarks() async {
