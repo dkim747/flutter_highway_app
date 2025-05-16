@@ -30,8 +30,17 @@ class DatabaseHelper {
   }
 
   Future<void> _createDB(Database db, int version) async {
+
     await db.execute('''
       CREATE TABLE bookmark(
+        id TEXT NOT NULL,
+        type TEXT NOT NULL,
+        objectMap TEXT NOT NULL,
+      )
+    ''');
+
+      await db.execute('''
+      CREATE TABLE bookmark_test(
         id TEXT NOT NULL,
         type TEXT NOT NULL,
         objectMap TEXT NOT NULL,
