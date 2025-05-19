@@ -47,19 +47,19 @@ class BookmarkWidget extends StatelessWidget {
       onTap: () {
         onTabFavorite();
         if(!isFavorite) {
-                Snackbar(
-                  text: "즐겨찾기 등록"
-                ).showSnackbar(context);
+          Snackbar(
+            text: "즐겨찾기 등록"
+          ).showSnackbar(context);
 
-                bookmarkService.addBookmark(bookmark);
+          bookmarkService.addBookmark(bookmark);
 
-              } else {
-                Snackbar(
-                    text: "즐겨찾기 해제"
-                ).showSnackbar(context);
+        } else {
+          Snackbar(
+              text: "즐겨찾기 해제"
+          ).showSnackbar(context);
 
-                bookmarkService.deleteBookmark(bookmark.id);
-              }
+          bookmarkService.deleteBookmark(bookmark.id);
+        }
       },
     );
   }
