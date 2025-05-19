@@ -1,9 +1,8 @@
 import 'package:app1/common_model/bookmark/bookmark.dart';
 import 'package:app1/common_model/bookmark/bookmark_service.dart';
-import 'package:app1/common_model/bookmark/repository/bookmark_repository.dart';
 import 'package:app1/common_model/bookmark/repository/bookmark_repository_factory.dart';
-import 'package:app1/common_model/bookmark/repository/interface_bookmark_repository.dart';
-import 'package:app1/common_model/favorites2.dart';
+import 'package:app1/common_model/bookmark/service/bookmark_service_factory.dart';
+import 'package:app1/common_model/bookmark/service/interface_bookmark_service.dart';
 import 'package:app1/common_widgets/base_layout.dart';
 import 'package:app1/screens/road_condition_detail/utils/road_condition_details_utils.dart';
 import 'package:app1/screens/road_condition_detail/widgets/menu_widget.dart';
@@ -16,11 +15,11 @@ import 'model/route_info.dart';
 
 class RoadConditionDetailScreen extends StatefulWidget {
 
-  final String repoType;
+  final String serviceType;
 
   const RoadConditionDetailScreen({
     super.key,
-    required this.repoType
+    required this.serviceType
   });
 
   @override
@@ -47,8 +46,10 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
   @override
   void initState() {
     super.initState();
-    final BookmarkRepositoryFactory factory = BookmarkRepositoryFactory();
-    bookmarkService = BookmarkService(factory);
+    // final BookmarkRepositoryFactory factory = BookmarkRepositoryFactory();
+    // bookmarkService = BookmarkService(factory);
+    final BookmarkServiceFactory factory = BookmarkServiceFactory();
+    bookmarkService = factory.getBookmarkService(widget.serviceType);
   }
 
   @override
@@ -68,7 +69,7 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
   void _checkBookmarkState(String routeNo, String direction) async {
 
     final id = "route$routeNo$direction";
-    final bookmark = await bookmarkService.getBookmarkById(id, widget.repoType);
+    final bookmark = await bookmarkService.getBookmarkById(id);
     setState(() {
       isFavorite = bookmark != null;
     });
@@ -147,7 +148,7 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
             },
 
             bookmark: Bookmark(id: id, type: "route", objectMap: route.toJson(), direction: selectedDirection),
-            type: widget.repoType,
+            // type: widget.serviceType,
             bookmarkService: bookmarkService,
           ),
 

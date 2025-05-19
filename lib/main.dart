@@ -5,8 +5,6 @@ import 'package:app1/screens/traffic_map/traffic_map.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'common_model/bookmark/repository/bookmark_repository_factory.dart';
-
 void main() {
   // WidgetsFlutterBinding.ensureInitialized();
   // await SharedPreferences.getInstance();
@@ -55,7 +53,7 @@ class MyApp extends StatelessWidget {
             return PageRouteBuilder(
                 pageBuilder: (context, animation, secondaryAnimation) => RoadConditionDetailScreen(
                   // bookmarkRepository: BookmarkRepositoryFactory().getBookmarkRepository("default"),
-                  repoType: "default",
+                  serviceType: "default",
                 ),
                 settings: RouteSettings(
                   name: router.name,

@@ -1,14 +1,10 @@
 import 'package:app1/common_model/bookmark/bookmark.dart';
-import 'package:app1/common_model/bookmark/bookmark_service.dart';
-import 'package:app1/common_model/bookmark/repository/bookmark_repository_factory.dart';
-import 'package:app1/common_model/bookmark/repository/interface_bookmark_repository.dart';
-import 'package:app1/common_model/favorites2.dart';
-import 'package:app1/common_utils/common_utils.dart';
+import 'package:app1/common_model/bookmark/bookmark_widget.dart';
+import 'package:app1/common_model/bookmark/service/interface_bookmark_service.dart';
 import 'package:app1/screens/road_condition_detail/widgets/road_type_widget.dart';
 import 'package:flutter/material.dart';
 
 import '../../../common_widgets/snackbar.dart';
-import '../../road_condition/model/routes.dart';
 import '../model/small_icons.dart';
 
 class MenuWidget extends StatelessWidget {
@@ -19,7 +15,7 @@ class MenuWidget extends StatelessWidget {
   final bool isFavorite;
   final VoidCallback onTabFavorite;
   final Bookmark bookmark;
-  final String type;
+  // final String type;
   final BookmarkService bookmarkService;
 
   const MenuWidget({
@@ -30,7 +26,7 @@ class MenuWidget extends StatelessWidget {
     required this.isFavorite,
     required this.onTabFavorite,
     required this.bookmark,
-    required this.type,
+    // required this.type,
     required this.bookmarkService
   });
 
@@ -117,34 +113,48 @@ class MenuWidget extends StatelessWidget {
             );
           }),
 
-          GestureDetector(
-            child: Container(
-              color: isFavorite ? Colors.blue : Colors.white,
-              width: MediaQuery.of(context).size.width * 0.07,
-              height: MediaQuery.of(context).size.width * 0.07,
-              child: Icon(
-                Icons.star_border_sharp,
-                color: isFavorite ? Colors.white : Colors.grey,
-              ),
-            ),
-            onTap: () {
-              onTabFavorite();
-              if(!isFavorite) {
-                Snackbar(
-                  text: "즐겨찾기 등록"
-                ).showSnackbar(context);
-
-                bookmarkService.addBookmark(bookmark, type);
-
-              } else {
-                Snackbar(
-                    text: "즐겨찾기 해제"
-                ).showSnackbar(context);
-
-                bookmarkService.deleteBookmark(bookmark.id, type);
-              }
-            },
+          BookmarkWidget(
+            isFavorite: isFavorite, 
+            width: MediaQuery.of(context).size.width * 0.07,
+            height: MediaQuery.of(context).size.width * 0.07,
+            icon: Icons.star_border_sharp, 
+            onTabFavorite: onTabFavorite, 
+            iconColorOn: Colors.white, 
+            iconColorOff: Colors.grey, 
+            backgroundColorOn: Colors.blue, 
+            backgroundColorOff: Colors.white, 
+            bookmarkService: bookmarkService, 
+            bookmark: bookmark
           ),
+
+          // GestureDetector(
+          //   child: Container(
+          //     color: isFavorite ? Colors.blue : Colors.white,
+          //     width: MediaQuery.of(context).size.width * 0.07,
+          //     height: MediaQuery.of(context).size.width * 0.07,
+          //     child: Icon(
+          //       Icons.star_border_sharp,
+          //       color: isFavorite ? Colors.white : Colors.grey,
+          //     ),
+          //   ),
+          //   onTap: () {
+          //     onTabFavorite();
+          //     if(!isFavorite) {
+          //       Snackbar(
+          //         text: "즐겨찾기 등록"
+          //       ).showSnackbar(context);
+
+          //       bookmarkService.addBookmark(bookmark);
+
+          //     } else {
+          //       Snackbar(
+          //           text: "즐겨찾기 해제"
+          //       ).showSnackbar(context);
+
+          //       bookmarkService.deleteBookmark(bookmark.id);
+          //     }
+          //   },
+          // ),
 
           SizedBox(width: MediaQuery.of(context).size.width * 0.02,)
         ],
