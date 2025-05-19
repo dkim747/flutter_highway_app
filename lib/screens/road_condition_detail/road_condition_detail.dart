@@ -1,6 +1,4 @@
 import 'package:app1/common_model/bookmark/bookmark.dart';
-import 'package:app1/common_model/bookmark/bookmark_service.dart';
-import 'package:app1/common_model/bookmark/repository/bookmark_repository_factory.dart';
 import 'package:app1/common_model/bookmark/service/bookmark_service_factory.dart';
 import 'package:app1/common_model/bookmark/service/interface_bookmark_service.dart';
 import 'package:app1/common_widgets/base_layout.dart';
