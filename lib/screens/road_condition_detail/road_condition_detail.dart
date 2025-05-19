@@ -1,3 +1,4 @@
+import 'package:app1/common_model/bookmark/bookmark.dart';
 import 'package:app1/common_model/favorites2.dart';
 import 'package:app1/common_widgets/base_layout.dart';
 import 'package:app1/screens/road_condition_detail/utils/road_condition_details_utils.dart';
@@ -43,7 +44,8 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
     final routeName = route.routeName;
     final routeNo = route.routeNo;
     final startPoint = route.startPoint;
-    final endPoint = route.endPoint;
+    final endPoint = route.endPoint; 
+    final type = "default";
 
     // final filteredRouteList = routeList.where((r) =>
     //   r.driveDrctDc == selectedDirection &&
@@ -117,7 +119,9 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
               //     : isFavorite;
             },
             // roadType: roadType,
-            favoriteObject: Favorites2<Routes>(type:id, object: route),
+            // favoriteObject: Favorites2<Routes>(type:id, object: route),            
+            bookmark: Bookmark(id: id, type: "route", objectMap: route.toJson(), direction: selectedDirection),
+            type: type,
           ),
 
           Expanded(

@@ -35,7 +35,7 @@ class DatabaseHelper {
       CREATE TABLE bookmark(
         id TEXT NOT NULL,
         type TEXT NOT NULL,
-        objectMap TEXT NOT NULL,
+        objectMap TEXT NOT NULL
       )
     ''');
 
@@ -43,7 +43,7 @@ class DatabaseHelper {
       CREATE TABLE bookmark_test(
         id TEXT NOT NULL,
         type TEXT NOT NULL,
-        objectMap TEXT NOT NULL,
+        objectMap TEXT NOT NULL
       )
     ''');
   }

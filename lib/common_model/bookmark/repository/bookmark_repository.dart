@@ -61,5 +61,8 @@ class DefaultBookmarkRepository extends BookmarkRepository{
         'objectMap': jsonEncode(bookmark.objectMap),
       },
     );
-  }  
+  }
+  
+  @override
+  String get type => "default";  
 }

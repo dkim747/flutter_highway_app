@@ -1,3 +1,6 @@
+import 'package:app1/common_model/bookmark/bookmark.dart';
+import 'package:app1/common_model/bookmark/bookmark_service.dart';
+import 'package:app1/common_model/bookmark/repository/bookmark_repository_factory.dart';
 import 'package:app1/common_model/favorites2.dart';
 import 'package:app1/common_utils/common_utils.dart';
 import 'package:app1/screens/road_condition_detail/widgets/road_type_widget.dart';
@@ -21,7 +24,9 @@ class MenuWidget extends StatelessWidget {
   final bool isFavorite;
   // final ValueChanged<IconData> onTabFavorite;
   final VoidCallback onTabFavorite;
-  final Favorites2 favoriteObject;
+  // final Favorites2 favoriteObject;
+  final Bookmark bookmark;
+  final String type;
 
   const MenuWidget({
     super.key,
@@ -32,7 +37,9 @@ class MenuWidget extends StatelessWidget {
     // required this.roadType
     required this.isFavorite,
     required this.onTabFavorite,
-    required this.favoriteObject
+    // required this.favoriteObject
+    required this.bookmark,
+    required this.type
   });
 
   // final iconList = [
@@ -196,22 +203,27 @@ class MenuWidget extends StatelessWidget {
                 // CommonUtils.loadObjectFromPreference<Favorites2>("favorite", (r) => Favorites2.fromJson(r, (t) => Routes.fromJson(t)))
                 //   .then((r) => print(r?.object));
 
-                  CommonUtils.saveObjectListInPreference<Favorites2>("favorite", favoriteObject, (r) => r.toJson((s) => s.toJson()), (r) => r.type,(json) {
-                    final type = json['type'];
+                  // CommonUtils.saveObjectListInPreference<Favorites2>("favorite", favoriteObject, (r) => r.toJson((s) => s.toJson()), (r) => r.type,(json) {
+                  //   final type = json['type'];
 
-                    if (type.startsWith("route")) {
-                      return Favorites2.fromJson(json, (obj) => Routes.fromJson(obj));
-                    } else if (type.startsWith("cctv")) {
-                      // return Favorites2.fromJson(json, (obj) => CCTV.fromJson(obj));
-                    } else if (type.startsWith("news")) {
-                      // return Favorites2.fromJson(json, (obj) => News.fromJson(obj));
-                    }
+                  //   if (type.startsWith("route")) {
+                  //     return Favorites2.fromJson(json, (obj) => Routes.fromJson(obj));
+                  //   } else if (type.startsWith("cctv")) {
+                  //     // return Favorites2.fromJson(json, (obj) => CCTV.fromJson(obj));
+                  //   } else if (type.startsWith("news")) {
+                  //     // return Favorites2.fromJson(json, (obj) => News.fromJson(obj));
+                  //   }
 
-                    throw UnsupportedError("Unknown type: $type");
-                  }, );
+                  //   throw UnsupportedError("Unknown type: $type");
+                  // }, );
 
                   // List<Favorites2> list = [];
                   // list.add(favoriteObject);
+
+                  print("저장시작----------------");
+                  final BookmarkRepositoryFactory bookmarkRepositoryFactory = BookmarkRepositoryFactory();
+                  final BookmarkService bookmarkService = BookmarkService(bookmarkRepositoryFactory);
+                  bookmarkService.addBookmark(bookmark, type);
 
                 } else {
                   Snackbar(
