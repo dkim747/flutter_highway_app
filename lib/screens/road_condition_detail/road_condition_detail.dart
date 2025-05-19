@@ -1,4 +1,8 @@
 import 'package:app1/common_model/bookmark/bookmark.dart';
+import 'package:app1/common_model/bookmark/bookmark_service.dart';
+import 'package:app1/common_model/bookmark/repository/bookmark_repository.dart';
+import 'package:app1/common_model/bookmark/repository/bookmark_repository_factory.dart';
+import 'package:app1/common_model/bookmark/repository/interface_bookmark_repository.dart';
 import 'package:app1/common_model/favorites2.dart';
 import 'package:app1/common_widgets/base_layout.dart';
 import 'package:app1/screens/road_condition_detail/utils/road_condition_details_utils.dart';
@@ -11,13 +15,21 @@ import 'model/direction.dart';
 import 'model/route_info.dart';
 
 class RoadConditionDetailScreen extends StatefulWidget {
-  const RoadConditionDetailScreen({super.key});
+
+  final String repoType;
+
+  const RoadConditionDetailScreen({
+    super.key,
+    required this.repoType
+  });
 
   @override
   State<RoadConditionDetailScreen> createState() => _RoadConditionDetailScreenState();
 }
 
 class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
+
+  late final BookmarkService bookmarkService;
 
   //T_TRMB_ROUTE_TRFC_CRCM01L1 테이블, cctv 테이블 조인시켜서 가져올듯? 썸네일 있으니
   List<RouteInfo> routeList = [
@@ -26,26 +38,50 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
   ];
 
   String selectedDirection = Direction.e;
-  // int? selectedIconIndex;
   IconData? selectedIcon;
-  // String roadType = "일반";
 
   bool isFavorite = false;
+
+  bool _isInit = true;
 
   @override
   void initState() {
     super.initState();
+    final BookmarkRepositoryFactory factory = BookmarkRepositoryFactory();
+    bookmarkService = BookmarkService(factory);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (_isInit) {
+      final route = ModalRoute.of(context)!.settings.arguments as Routes;
+      final routeNo = route.routeNo;
+
+      _checkBookmarkState(routeNo, selectedDirection);
+
+      _isInit = false;
+    }
+  }
+
+  void _checkBookmarkState(String routeNo, String direction) async {
+
+    final id = "route$routeNo$direction";
+    final bookmark = await bookmarkService.getBookmarkById(id, widget.repoType);
+    setState(() {
+      isFavorite = bookmark != null;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
 
-    final route =  ModalRoute.of(context)!.settings.arguments as Routes;
-    final routeName = route.routeName;
-    final routeNo = route.routeNo;
-    final startPoint = route.startPoint;
-    final endPoint = route.endPoint; 
-    final type = "default";
+    final Routes route =  ModalRoute.of(context)!.settings.arguments as Routes;
+    final String routeName = route.routeName;
+    final String routeNo = route.routeNo;
+    final String startPoint = route.startPoint;
+    final String endPoint = route.endPoint;
 
     // final filteredRouteList = routeList.where((r) =>
     //   r.driveDrctDc == selectedDirection &&
@@ -53,12 +89,12 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
     // ).toList();
 
     //굳이 이렇게 할 필요 없지만 제네릭으로 함수 만들어 보려고 함수 만듬
-    final filteredRouteList = RoadConditionDetailsUtils.getFilteredList(routeList,
+    final List<RouteInfo> filteredRouteList = RoadConditionDetailsUtils.getFilteredList(routeList,
                                                                         (r) => r.driveDrctDc == selectedDirection
                                                                             && r.routeCd == routeNo
                                                                        );
     
-    final filteredRouteList2 = RoadConditionDetailsUtils.getFilteredList(filteredRouteList,
+    final List<RouteInfo> filteredRouteList2 = RoadConditionDetailsUtils.getFilteredList(filteredRouteList,
                                                                           (r) => r.spd < 40
                                                                         );
 
@@ -67,14 +103,10 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
     if(selectedIcon == Icons.warning_amber) {
       list = filteredRouteList2;
     } else if(selectedIcon == Icons.directions_bus_sharp) {
-      // list =
+
     }
 
-    // selectedIcon != Icons.warning_amber ? filteredRouteList : filteredRouteList2;
-
-    // final int _selectedIndex;
-
-    String id = "route$routeNo$selectedDirection";
+    final String id = "route$routeNo$selectedDirection";
 
     return BaseLayout(
       title: routeName,
@@ -90,6 +122,7 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
                 selectedDirection = direction;
                 // routeList = filteredRoute;
               });
+              _checkBookmarkState(route.routeNo, direction);
             },
             startPoint: startPoint,
             endPoint: endPoint,
@@ -108,20 +141,14 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
             routeNo: routeNo,
             isFavorite: isFavorite,
             onTabFavorite: () {
-              // if(icon == Icons.star_border_sharp) {
               setState(() {
                 isFavorite = !isFavorite;
               });
-              // Snackbar
-              // }
-              // icon == Icons.star_border_sharp
-              //     ? !isFavorite
-              //     : isFavorite;
             },
-            // roadType: roadType,
-            // favoriteObject: Favorites2<Routes>(type:id, object: route),            
+
             bookmark: Bookmark(id: id, type: "route", objectMap: route.toJson(), direction: selectedDirection),
-            type: type,
+            type: widget.repoType,
+            bookmarkService: bookmarkService,
           ),
 
           Expanded(
@@ -130,119 +157,101 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
               itemBuilder: (context, index) {
                 final route = list[index];
                 return
-                  // Stack(
-                  // clipBehavior: Clip.none,
-                  // children: [
-                    GestureDetector(
-                      child: Container(
-                        decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(color: Colors.black, width: 1),
-                            )
-                        ),
-                        height: MediaQuery.of(context).size.height * 0.09,
-                        padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.height * 0.015),
-                        child: Row(
 
-                          children: [
-
-                            Visibility(
-                              visible: selectedIcon == Icons.directions_bus_sharp,
-                              child: Row(
-                                children: [
-                                  SpeedbarWithDirectionArrowWidget(
-                                    speed: route.spd,
-                                    index: index,
-                                    selectedDirection: selectedDirection
-                                  ),
-                                  SizedBox(width: MediaQuery.of(context).size.height * 0.02,),
-                                ],
-                              )
-                            ),
-
-                            Visibility(
-                              visible: selectedIcon == Icons.alt_route,
-                              child: Row(
-                                children: [
-                                  SpeedbarWithDirectionArrowWidget(
-                                    speed: route.spd,
-                                    index: index,
-                                    selectedDirection: selectedDirection
-                                  ),
-                                  SizedBox(width: MediaQuery.of(context).size.height * 0.02,),
-                                ],
-                              )
-                            ),
-
-                            SpeedbarWithDirectionArrowWidget(
-                                speed: route.spd,
-                                index: index,
-                                selectedDirection: selectedDirection
-                            ),
-
-                            SizedBox(width: MediaQuery.of(context).size.width * 0.04),
-
-                            // Expanded(
-                            //   child:
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.35,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  // SizedBox(height: 20, ),
-                                  Text('${route.nodeCtltNm} (${route.linkKmDstne}km)'),
-                                  Text('${route.spd}km/h', style: TextStyle(fontSize: 14)),
-                                ],
-                              ),
-                            ),
-
-                            // ),
-
-                            SizedBox(width: MediaQuery.of(context).size.width * 0.01),
-
-                            Visibility(
-                              visible: selectedIcon == Icons.sunny,
-                              child: SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.04,
-                                child: Icon(Icons.sunny),
-                              ),
-                            ),
-
-
-                            Spacer(),
-
-                            if (route.cctvNm != null && route.cctvUrl != null)
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                // mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(route.cctvNm!, style: TextStyle(fontSize: 14)),
-                                  SizedBox(width: MediaQuery.of(context).size.width * 0.01,),
-                                  // Image.network(route.cctvUrl!, width: MediaQuery.of(context).size.width * 0.25, height: MediaQuery.of(context).size.height * 0.1),
-                                  // Image.network(route.cctvUrl!, width: 100, height: 100),
-                                ],
-                              ),
-                          ],
-                        ),
+                  GestureDetector(
+                    child: Container(
+                      decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(color: Colors.black, width: 1),
+                          )
                       ),
-                    );
+                      height: MediaQuery.of(context).size.height * 0.09,
+                      padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.height * 0.015),
+                      child: Row(
 
-                    // if(index != 0)
-                    // Positioned(
-                    //   top: MediaQuery.of(context).size.height * -0.007,
-                    //   // left: MediaQuery.of(context).padding.left + 16,
-                    //   left: MediaQuery.of(context).size.width * 0.032,
-                    //   child: Transform.rotate(
-                    //     angle: selectedDirection == Direction.s ? pi : 0,
-                    //     child: CustomPaint(
-                    //       size: Size(MediaQuery.of(context).size.width * 0.04, MediaQuery.of(context).size.width * 0.03),
-                    //       painter: VArrowWidget(borderColor: Colors.black, fillColor: Colors.white),
-                    //     ),
-                    //   )
-                    // )
-                //   ],
-                // );
+                        children: [
+
+                          Visibility(
+                            visible: selectedIcon == Icons.directions_bus_sharp,
+                            child: Row(
+                              children: [
+                                SpeedbarWithDirectionArrowWidget(
+                                  speed: route.spd,
+                                  index: index,
+                                  selectedDirection: selectedDirection
+                                ),
+                                SizedBox(width: MediaQuery.of(context).size.height * 0.02,),
+                              ],
+                            )
+                          ),
+
+                          Visibility(
+                            visible: selectedIcon == Icons.alt_route,
+                            child: Row(
+                              children: [
+                                SpeedbarWithDirectionArrowWidget(
+                                  speed: route.spd,
+                                  index: index,
+                                  selectedDirection: selectedDirection
+                                ),
+                                SizedBox(width: MediaQuery.of(context).size.height * 0.02,),
+                              ],
+                            )
+                          ),
+
+                          SpeedbarWithDirectionArrowWidget(
+                              speed: route.spd,
+                              index: index,
+                              selectedDirection: selectedDirection
+                          ),
+
+                          SizedBox(width: MediaQuery.of(context).size.width * 0.04),
+
+                          // Expanded(
+                          //   child:
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.35,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // SizedBox(height: 20, ),
+                                Text('${route.nodeCtltNm} (${route.linkKmDstne}km)'),
+                                Text('${route.spd}km/h', style: TextStyle(fontSize: 14)),
+                              ],
+                            ),
+                          ),
+
+                          // ),
+
+                          SizedBox(width: MediaQuery.of(context).size.width * 0.01),
+
+                          Visibility(
+                            visible: selectedIcon == Icons.sunny,
+                            child: SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.04,
+                              child: Icon(Icons.sunny),
+                            ),
+                          ),
+
+
+                          Spacer(),
+
+                          if (route.cctvNm != null && route.cctvUrl != null)
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              // mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(route.cctvNm!, style: TextStyle(fontSize: 14)),
+                                SizedBox(width: MediaQuery.of(context).size.width * 0.01,),
+                                // Image.network(route.cctvUrl!, width: MediaQuery.of(context).size.width * 0.25, height: MediaQuery.of(context).size.height * 0.1),
+                                // Image.network(route.cctvUrl!, width: 100, height: 100),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
               },
             ),
           ),

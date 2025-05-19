@@ -24,13 +24,28 @@ class Bookmark {
     };
   }
 
+  // factory Bookmark.fromMap(Map<String, dynamic> map) {
+  //
+  //   print("📦 Bookmark.fromMap input: $map");
+  //
+  //   return Bookmark(
+  //     id: map['id'],
+  //     type: map['type'],
+  //     objectMap: jsonDecode(map['objectMap']),
+  //     direction: map['direction']
+  //   );
+  // }
+
   factory Bookmark.fromMap(Map<String, dynamic> map) {
 
+    final rawObjectMap = map['objectMap'];
+    final decodedObjectMap = rawObjectMap != null ? jsonDecode(rawObjectMap) : {};
+
     return Bookmark(
-      id: map['id'],
-      type: map['type'],
-      objectMap: jsonDecode(map['objectMap']),
-      direction: map['direction']
+      id: map['id'] ?? '',
+      type: map['type'] ?? '',
+      objectMap: decodedObjectMap,
+      direction: map['direction'] ?? '',
     );
   }
 }

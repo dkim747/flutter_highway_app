@@ -27,9 +27,16 @@ class BookmarkRepositoryFactory {
 
   final Map<String, BookmarkRepository> _cache = {};
 
-  BookmarkRepository getBookmarkService(String type) {
+  BookmarkRepository getBookmarkRepository(String type) {
+
+    final creator = _creators[type];
+
+    if (creator == null) {
+      throw Exception('No BookmarkRepository registered for type "$type"');
+    }
+
     if (!_cache.containsKey(type)) {
-      _cache[type] = _creators[type]!();
+      _cache[type] = creator();
     }
     return _cache[type]!;
   }

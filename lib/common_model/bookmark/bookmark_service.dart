@@ -10,11 +10,28 @@ class BookmarkService {
 
   Future<void> addBookmark(Bookmark bookmark, String type) async {
 
-    final BookmarkRepository bookmarkRepository = bookmarkRepositoryFactory.getBookmarkService(type);
+    final BookmarkRepository bookmarkRepository = bookmarkRepositoryFactory.getBookmarkRepository(type);
  
-    final existing = await bookmarkRepository.getBookmarkById(bookmark.id);
+    final existing = await bookmarkRepository.findBookmarkById(bookmark.id);
     if (existing == null) {
       await bookmarkRepository.insertBookmark(bookmark);
+    }
+  }
+
+  Future<Bookmark?> getBookmarkById(String id, String type) async {
+    final BookmarkRepository bookmarkRepository = bookmarkRepositoryFactory.getBookmarkRepository(type);
+
+    Bookmark? bookmark = await bookmarkRepository.findBookmarkById(id);
+
+    return bookmark;
+  }
+
+  Future<void> deleteBookmark(String id, String type) async {
+    final BookmarkRepository bookmarkRepository = bookmarkRepositoryFactory.getBookmarkRepository(type);
+
+    final existing = await bookmarkRepository.findBookmarkById(id);
+    if (existing != null) {
+      await bookmarkRepository.deleteBookmark(id);
     }
   }
 }

@@ -5,6 +5,8 @@ import 'package:app1/screens/traffic_map/traffic_map.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'common_model/bookmark/repository/bookmark_repository_factory.dart';
+
 void main() {
   // WidgetsFlutterBinding.ensureInitialized();
   // await SharedPreferences.getInstance();
@@ -51,7 +53,10 @@ class MyApp extends StatelessWidget {
           case '/screens/roadConditionDetail':
           // final routeName = router.arguments as String;
             return PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) => RoadConditionDetailScreen(),
+                pageBuilder: (context, animation, secondaryAnimation) => RoadConditionDetailScreen(
+                  // bookmarkRepository: BookmarkRepositoryFactory().getBookmarkRepository("default"),
+                  repoType: "default",
+                ),
                 settings: RouteSettings(
                   name: router.name,
                   arguments: router.arguments, // 👈 이걸 추가해야 ModalRoute.of(context)에서 받음!

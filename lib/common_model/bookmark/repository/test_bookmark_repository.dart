@@ -22,7 +22,7 @@ class TestBookmarkRepository extends BookmarkRepository{
   }
 
   @override
-  Future<Bookmark?> getBookmarkById(String id) async {
+  Future<Bookmark?> findBookmarkById(String id) async {
     final Database db = await databaseHelper.database;
 
     final List<Map<String, dynamic>> result = await db.query(

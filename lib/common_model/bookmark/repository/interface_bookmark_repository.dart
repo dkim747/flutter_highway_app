@@ -8,7 +8,7 @@ abstract class BookmarkRepository {
 
   Future<List<Bookmark>> findAllBookmarks();
 
-  Future<Bookmark?> getBookmarkById(String id);
+  Future<Bookmark?> findBookmarkById(String id);
 
   Future<void> deleteBookmark(String id);
 }
