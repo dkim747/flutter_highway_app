@@ -1,3 +1,4 @@
+import 'package:app1/geolocator/permission.dart';
 import 'package:flutter/material.dart';
 import '../../common_utils/common_utils.dart';
 import '../../common_widgets/base_layout.dart';
@@ -39,6 +40,10 @@ class _RoadConditionState extends State<RoadConditionScreen> {
     //     searchedRouteInfo = List.from(routeInfo);
     //   });
     // });
+
+    // GeolocatorUtils.checkLocationPermission();
+
+
     CommonUtils.loadObjectFromPreference('lastTappedRoute', (json) => Routes.fromJson(json))
         .then((route) {
           setState(() {

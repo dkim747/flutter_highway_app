@@ -11,7 +11,7 @@ class MenuWidget extends StatelessWidget {
 
   final String routeNo;
   final IconData? selectedIcon;
-  final ValueChanged<IconData> onSelected;
+  final ValueChanged<SmallIcons> onSelected;
   final bool isFavorite;
   final VoidCallback onTabFavorite;
   final Bookmark bookmark;
@@ -98,12 +98,13 @@ class MenuWidget extends StatelessWidget {
                   height: MediaQuery.of(context).size.width * 0.07,
                   isSelected: isSelected,
                   onTap: () {
-                    onSelected(currentIcon.icon);
-                    if(currentIcon.message != null && selectedIcon != currentIcon.icon) {
-                      Snackbar(
-                          text: currentIcon.message!
-                      ).showSnackbar(context);
-                    }
+                    onSelected(currentIcon);
+                    // if(currentIcon.message != null && selectedIcon != currentIcon.icon) {
+                    //   Snackbar(
+                    //       text: currentIcon.message!
+                    //   ).showSnackbar(context);
+                    // }
+
                     // onSelected(currentIcon.icon);
                   }
                 ),

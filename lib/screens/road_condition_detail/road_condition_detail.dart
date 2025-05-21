@@ -1,15 +1,25 @@
+import 'dart:async';
+
+import 'package:app1/common_event_bus/location_controller.dart';
+import 'package:app1/common_event_bus/location_search_event.dart';
 import 'package:app1/common_model/bookmark/bookmark.dart';
 import 'package:app1/common_model/bookmark/service/bookmark_service_factory.dart';
 import 'package:app1/common_model/bookmark/service/interface_bookmark_service.dart';
 import 'package:app1/common_widgets/base_layout.dart';
+import 'package:app1/provider/permission_controller.dart';
 import 'package:app1/screens/road_condition_detail/utils/road_condition_details_utils.dart';
 import 'package:app1/screens/road_condition_detail/widgets/menu_widget.dart';
 import 'package:app1/screens/road_condition_detail/widgets/speedbar_with_direction_arrow_widget.dart';
 import 'package:app1/screens/road_condition_detail/widgets/direction_switching_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
+import '../../common_event_bus/event_bus.dart';
+import '../../common_widgets/snackbar.dart';
 import '../road_condition/model/routes.dart';
 import 'model/direction.dart';
 import 'model/route_info.dart';
+import 'model/small_icons.dart';
 
 class RoadConditionDetailScreen extends StatefulWidget {
 
@@ -36,33 +46,48 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
 
   String selectedDirection = Direction.e;
   IconData? selectedIcon;
-
   bool isFavorite = false;
 
-  bool _isInit = true;
+  // bool get isLocationGranted =>
+  //     Provider.of<PermissionController>(context, listen: false).isLocationGranted ?? false;
+
 
   @override
   void initState() {
     super.initState();
-    // final BookmarkRepositoryFactory factory = BookmarkRepositoryFactory();
-    // bookmarkService = BookmarkService(factory);
-    final BookmarkServiceFactory factory = BookmarkServiceFactory();
-    bookmarkService = factory.getBookmarkService(widget.serviceType);
-  }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+    // eventBus.on<LocationSearchEvent>().listen((event) {
+    //   LocationController.getEvent();
+    // });
 
-    if (_isInit) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<PermissionController>().checkPermission();
+
       final route = ModalRoute.of(context)!.settings.arguments as Routes;
       final routeNo = route.routeNo;
 
       _checkBookmarkState(routeNo, selectedDirection);
+    });
 
-      _isInit = false;
-    }
+    final BookmarkServiceFactory factory = BookmarkServiceFactory();
+    bookmarkService = factory.getBookmarkService(widget.serviceType);
   }
+
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //
+  //   if (_isInit) {
+  //     final route = ModalRoute.of(context)!.settings.arguments as Routes;
+  //     final routeNo = route.routeNo;
+  //
+  //     _checkBookmarkState(routeNo, selectedDirection);
+  //
+  //     // Provider.of<PermissionController>(context, listen: false).checkPermission();
+  //
+  //     _isInit = false;
+  //   }
+  // }
 
   void _checkBookmarkState(String routeNo, String direction) async {
 
@@ -73,8 +98,78 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
     });
   }
 
+  void showPermissionDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Consumer<PermissionController>(
+          builder: (context, permissionController, child) {
+            final granted = permissionController.isLocationGranted ?? false;
+
+            // 권한이 이미 허용된 경우, 다이얼로그 닫기
+            if (granted) {
+              // showDialog는 비동기이기 때문에 다음 프레임에서 pop 실행
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (Navigator.canPop(context)) {
+                  Navigator.of(context).pop();
+                }
+              });
+              return const SizedBox.shrink(); // 빈 위젯 반환 (안정성)
+            }
+
+            // 권한이 허용되지 않았을 경우 다이얼로그 표시
+            return AlertDialog(
+              title: const Text('위치 정보 권한 요청'),
+              content: const Text('위치 기능을 사용하려면 권한이 필요합니다. 권한을 활성화하시겠습니까?'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // 닫기
+                  },
+                  child: const Text('취소'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    await permissionController.confirmLocationPermission();
+                    Navigator.of(context).pop(); // 다이얼로그 닫기
+                  },
+                  child: const Text('확인'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void handleMenuSelected(SmallIcons selected) async {
+
+    if (selected.icon == Icons.location_searching) {
+      final result = await Permission.location.status;
+      if(!result.isGranted) {
+        showPermissionDialog(context);
+      }
+    }
+
+    if (selected.message != null && selectedIcon == selected.icon) {
+      Snackbar(text: selected.message!).showSnackbar(context);
+    }
+
+    setState(() {
+      if (selected.icon != Icons.location_searching) {
+        selectedIcon == selected.icon
+            ? selectedIcon = null
+            : selectedIcon = selected.icon;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+
+    // print("이게 바뀌나 봐보자$isLocationGranted");
 
     final Routes route =  ModalRoute.of(context)!.settings.arguments as Routes;
     final String routeName = route.routeName;
@@ -130,13 +225,20 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
           MenuWidget(
             // selectedIndex: selectedIconIndex,
             selectedIcon: selectedIcon,
-            onSelected: (icon) {
-              setState(() {
-                selectedIcon == icon
-                    ? selectedIcon = null
-                    : selectedIcon = icon;
-              });
-            },
+            onSelected:
+            //     (icon) {
+            //   handleMenuSelected(icon);
+            // },
+            handleMenuSelected,
+
+
+            //     (icon) {
+            //   setState(() {
+            //     selectedIcon == icon
+            //         ? selectedIcon = null
+            //         : selectedIcon = icon;
+            //   });
+            // },
             routeNo: routeNo,
             isFavorite: isFavorite,
             onTabFavorite: () {
@@ -144,7 +246,6 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
                 isFavorite = !isFavorite;
               });
             },
-
             bookmark: Bookmark(id: id, type: "route", objectMap: route.toJson(), direction: selectedDirection),
             // type: widget.serviceType,
             bookmarkService: bookmarkService,
@@ -169,6 +270,12 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
                       child: Row(
 
                         children: [
+
+                          // Visibility(
+                          //   visible: selectedIcon == Icons.location_searching,
+                          //   child: PermissionWidget(),
+                          // ),
+
 
                           Visibility(
                             visible: selectedIcon == Icons.directions_bus_sharp,

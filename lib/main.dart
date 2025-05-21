@@ -1,4 +1,5 @@
 import 'package:app1/provider/notice_controller.dart';
+import 'package:app1/provider/permission_controller.dart';
 import 'package:app1/screens/road_condition/road_condition.dart';
 import 'package:app1/screens/road_condition_detail/road_condition_detail.dart';
 import 'package:app1/screens/traffic_map/traffic_map.dart';
@@ -10,8 +11,11 @@ void main() {
   // await SharedPreferences.getInstance();
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => NoticeController(),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => NoticeController()),
+          ChangeNotifierProvider(create: (_) => PermissionController()),
+        ],
       child: MyApp(),
     )
   );
