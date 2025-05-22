@@ -63,6 +63,7 @@ class CommonUtils {
 
   }
 
+  //이건 의미없다.. sqlite로 할거다
   static Future<void> saveObjectListInPreference<T>(String key, T object,
       Map<String, dynamic> Function(T) toJsonFunc, String Function(T) getIdFunc, T Function(Map<String, dynamic>) fromJsonFunc,) async {
 

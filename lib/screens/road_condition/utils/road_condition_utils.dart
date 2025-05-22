@@ -39,17 +39,17 @@ class RoadConditionUtils {
   }
 
   //검색로직
-  static List<Routes>? search(List<Routes> routes, String query) {
+  static List<Routes>? search(List<Routes> routes, String keyword) {
 
     try{
 
-      if(query.isEmpty) {
+      if(keyword.isEmpty) {
         return routes;
       }
 
       return routes.where((route) =>
-          route.routeName.contains(query) ||
-          route.routeNo.contains(query)
+          route.routeName.contains(keyword) ||
+          route.routeNo.contains(keyword)
       ).toList();
 
     } catch(e) {

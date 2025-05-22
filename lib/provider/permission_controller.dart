@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class PermissionController extends ChangeNotifier {
@@ -19,15 +20,17 @@ class PermissionController extends ChangeNotifier {
 
     if (status.isGranted) {
       print("위치 권한 허용됨");
+      _isLocationGranted = status.isGranted;
     } else if (status.isDenied) {
       print("위치 권한 거부됨");
+      _isLocationGranted = status.isDenied;
     } else if (status.isPermanentlyDenied) {
       print("권한이 다시 묻지 않음 상태");
       // 필요시 앱 설정 화면으로 안내
-      openAppSettings();
+      _isLocationGranted = status.isPermanentlyDenied;
     }
 
-    _isLocationGranted = status.isGranted;
+    // _isLocationGranted = status.isGranted;
 
     print("asdasdasdasdasdasdasd$_isLocationGranted");
     notifyListeners();

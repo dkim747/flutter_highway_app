@@ -1,7 +1,3 @@
-import 'dart:async';
-
-import 'package:app1/common_event_bus/location_controller.dart';
-import 'package:app1/common_event_bus/location_search_event.dart';
 import 'package:app1/common_model/bookmark/bookmark.dart';
 import 'package:app1/common_model/bookmark/service/bookmark_service_factory.dart';
 import 'package:app1/common_model/bookmark/service/interface_bookmark_service.dart';
@@ -14,7 +10,6 @@ import 'package:app1/screens/road_condition_detail/widgets/direction_switching_w
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import '../../common_event_bus/event_bus.dart';
 import '../../common_widgets/snackbar.dart';
 import '../road_condition/model/routes.dart';
 import 'model/direction.dart';
@@ -40,8 +35,12 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
 
   //T_TRMB_ROUTE_TRFC_CRCM01L1 테이블, cctv 테이블 조인시켜서 가져올듯? 썸네일 있으니
   List<RouteInfo> routeList = [
-    RouteInfo(routeCd: '0010', driveDrctDc: 'E', nodeCtltNm: '한남IC', linkKmDstne: '1.3', cctvNm: '한남IC', cctvUrl: "https://exmobile8.hscdn.com/cctv0640image/ch00000640_20250512.162100.000.jpg", spd: 38),
+    RouteInfo(routeCd: '0010', driveDrctDc: 'E', nodeCtltNm: '한남IC', linkKmDstne: '1.3', cctvNm: '한남IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 38),
     RouteInfo(routeCd: '0010', driveDrctDc: 'E', nodeCtltNm: '잠원IC', linkKmDstne: '1.38', cctvNm: '잠원IC', spd: 50),
+    RouteInfo(routeCd: '0010', driveDrctDc: 'E', nodeCtltNm: '한남IC', linkKmDstne: '1.3', cctvNm: '한남IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 38),
+    RouteInfo(routeCd: '0010', driveDrctDc: 'E', nodeCtltNm: '한남IC', linkKmDstne: '1.3', cctvNm: '한남IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 80),
+    RouteInfo(routeCd: '0010', driveDrctDc: 'S', nodeCtltNm: '한남IC', linkKmDstne: '1.3', cctvNm: '한남IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 38),
+    RouteInfo(routeCd: '0010', driveDrctDc: 'S', nodeCtltNm: '한남IC', linkKmDstne: '1.3', cctvNm: '한남IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 80),
   ];
 
   String selectedDirection = Direction.e;
@@ -61,7 +60,7 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
     // });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PermissionController>().checkPermission();
+      // context.read<PermissionController>().checkPermission();
 
       final route = ModalRoute.of(context)!.settings.arguments as Routes;
       final routeNo = route.routeNo;
@@ -98,47 +97,83 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
     });
   }
 
+  // void showPermissionDialog(BuildContext context) {
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (context) {
+  //       return Consumer<PermissionController>(
+  //         builder: (context, permissionController, child) {
+  //           final granted = permissionController.isLocationGranted ?? false;
+  //
+  //           // 권한이 이미 허용된 경우, 다이얼로그 닫기
+  //           if (granted) {
+  //             // showDialog는 비동기이기 때문에 다음 프레임에서 pop 실행
+  //             WidgetsBinding.instance.addPostFrameCallback((_) {
+  //               if (Navigator.canPop(context)) {
+  //                 Navigator.of(context).pop();
+  //               }
+  //             });
+  //             return const SizedBox.shrink(); // 빈 위젯 반환 (안정성)
+  //           }
+  //
+  //           // 권한이 허용되지 않았을 경우 다이얼로그 표시
+  //           return AlertDialog(
+  //             title: const Text('위치 정보 권한 요청'),
+  //             content: const Text('위치 기능을 사용하려면 권한이 필요합니다. 권한을 활성화하시겠습니까?'),
+  //             actions: [
+  //               TextButton(
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop(); // 닫기
+  //                 },
+  //                 child: const Text('취소'),
+  //               ),
+  //               TextButton(
+  //                 onPressed: () async {
+  //                   await permissionController.confirmLocationPermission();
+  //                   // Navigator.of(context).pop(); // 다이얼로그 닫기
+  //                 },
+  //                 child: const Text('확인'),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
   void showPermissionDialog(BuildContext context) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        return Consumer<PermissionController>(
-          builder: (context, permissionController, child) {
-            final granted = permissionController.isLocationGranted ?? false;
+        return AlertDialog(
+          title: const Text('위치 정보 권한 요청'),
+          content: const Text('위치 기능을 사용하려면 권한이 필요합니다. 권한을 활성화하시겠습니까?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('취소'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
 
-            // 권한이 이미 허용된 경우, 다이얼로그 닫기
-            if (granted) {
-              // showDialog는 비동기이기 때문에 다음 프레임에서 pop 실행
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (Navigator.canPop(context)) {
-                  Navigator.of(context).pop();
+                final permissionStatus = await Permission.location.status;
+
+                if(permissionStatus.isDenied) {
+                  await Permission.location.request();
+                  print("허용 안함 한번 클릭??=============");
+                } else if(permissionStatus.isPermanentlyDenied) {
+                  openAppSettings();
+                  print("평생 거부 클릭=============");
                 }
-              });
-              return const SizedBox.shrink(); // 빈 위젯 반환 (안정성)
-            }
-
-            // 권한이 허용되지 않았을 경우 다이얼로그 표시
-            return AlertDialog(
-              title: const Text('위치 정보 권한 요청'),
-              content: const Text('위치 기능을 사용하려면 권한이 필요합니다. 권한을 활성화하시겠습니까?'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(); // 닫기
-                  },
-                  child: const Text('취소'),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    await permissionController.confirmLocationPermission();
-                    Navigator.of(context).pop(); // 다이얼로그 닫기
-                  },
-                  child: const Text('확인'),
-                ),
-              ],
-            );
-          },
+              },
+              child: const Text('확인'),
+            ),
+          ],
         );
       },
     );
@@ -147,8 +182,21 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
   void handleMenuSelected(SmallIcons selected) async {
 
     if (selected.icon == Icons.location_searching) {
-      final result = await Permission.location.status;
-      if(!result.isGranted) {
+
+      final permissionStatus = await Permission.location.status;
+
+      if(permissionStatus.isGranted) {
+        print("현재 권한 상태는 수락====================");
+        //가까운 도로 위치 보여주는 함수 작성하면 댐
+
+      } else if(permissionStatus.isDenied) {
+        print("현재 권한 상태는 거절====================");
+        //거절 상태니까 다이얼로그 표출
+        showPermissionDialog(context);
+
+      } else if(permissionStatus.isPermanentlyDenied) {
+        print("현재 권한 상태는 평생거부====================");
+        //평생거부더라도 일단 다이얼로그 호출 근데 그 다이얼로그를 좀 다르게 해서 여러번 눌러서 설정화면으로 이동한다고 하면 되지 않을까?
         showPermissionDialog(context);
       }
     }
@@ -350,8 +398,8 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
                               children: [
                                 Text(route.cctvNm!, style: TextStyle(fontSize: 14)),
                                 SizedBox(width: MediaQuery.of(context).size.width * 0.01,),
-                                // Image.network(route.cctvUrl!, width: MediaQuery.of(context).size.width * 0.25, height: MediaQuery.of(context).size.height * 0.1),
-                                // Image.network(route.cctvUrl!, width: 100, height: 100),
+                                Image.network(route.cctvUrl!, width: MediaQuery.of(context).size.width * 0.25, height: MediaQuery.of(context).size.height * 0.1),
+                                // Image.network(route.cctvUrl!, width: 50, height: 50),
                               ],
                             ),
                         ],
