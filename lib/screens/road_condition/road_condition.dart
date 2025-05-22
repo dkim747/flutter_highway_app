@@ -1,4 +1,3 @@
-import 'package:app1/geolocator/permission.dart';
 import 'package:flutter/material.dart';
 import '../../common_utils/common_utils.dart';
 import '../../common_widgets/base_layout.dart';

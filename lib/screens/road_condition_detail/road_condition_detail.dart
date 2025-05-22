@@ -2,14 +2,12 @@ import 'package:app1/common_model/bookmark/bookmark.dart';
 import 'package:app1/common_model/bookmark/service/bookmark_service_factory.dart';
 import 'package:app1/common_model/bookmark/service/interface_bookmark_service.dart';
 import 'package:app1/common_widgets/base_layout.dart';
-import 'package:app1/provider/permission_controller.dart';
 import 'package:app1/screens/road_condition_detail/utils/road_condition_details_utils.dart';
 import 'package:app1/screens/road_condition_detail/widgets/menu_widget.dart';
 import 'package:app1/screens/road_condition_detail/widgets/speedbar_with_direction_arrow_widget.dart';
 import 'package:app1/screens/road_condition_detail/widgets/direction_switching_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:provider/provider.dart';
 import '../../common_widgets/snackbar.dart';
 import '../road_condition/model/routes.dart';
 import 'model/direction.dart';
@@ -164,11 +162,13 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
                 final permissionStatus = await Permission.location.status;
 
                 if(permissionStatus.isDenied) {
-                  await Permission.location.request();
+                  // openAppSettings();
                   print("허용 안함 한번 클릭??=============");
+                  await Permission.location.request();   
+                   print("허용 안함 한번 클릭22222222222??=============");               
                 } else if(permissionStatus.isPermanentlyDenied) {
-                  openAppSettings();
                   print("평생 거부 클릭=============");
+                  openAppSettings();                  
                 }
               },
               child: const Text('확인'),
@@ -398,7 +398,7 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
                               children: [
                                 Text(route.cctvNm!, style: TextStyle(fontSize: 14)),
                                 SizedBox(width: MediaQuery.of(context).size.width * 0.01,),
-                                Image.network(route.cctvUrl!, width: MediaQuery.of(context).size.width * 0.25, height: MediaQuery.of(context).size.height * 0.1),
+                                // Image.network(route.cctvUrl!, width: MediaQuery.of(context).size.width * 0.25, height: MediaQuery.of(context).size.height * 0.1),
                                 // Image.network(route.cctvUrl!, width: 50, height: 50),
                               ],
                             ),

@@ -4,7 +4,6 @@ import 'package:app1/common_model/bookmark/service/interface_bookmark_service.da
 import 'package:app1/screens/road_condition_detail/widgets/road_type_widget.dart';
 import 'package:flutter/material.dart';
 
-import '../../../common_widgets/snackbar.dart';
 import '../model/small_icons.dart';
 
 class MenuWidget extends StatelessWidget {

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../model/small_icons.dart';
 
 class RoadConditionDetailsUtils {
 

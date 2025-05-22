@@ -45,5 +45,15 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>앱 사용 중 위치 정보를 사용하기 위해 권한이 필요합니다.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>앱 사용 중과 백그라운드에서 위치 정보를 사용하기 위해 권한이 필요합니다.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>항상 위치 정보 사용을 위해 권한이 필요합니다.</string>
+	<key>NSLocationUsageDescription</key>
+    <string>Older devices need location.</string>
+
 </dict>
 </plist>
