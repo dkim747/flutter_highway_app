@@ -6,6 +6,8 @@ class RouteInfo {
   final String? cctvNm;
   final String? cctvUrl;
   final double spd;
+  final double xCord;
+  final double yCord;
 
   RouteInfo({
     required this.routeCd,
@@ -14,6 +16,8 @@ class RouteInfo {
     required this.linkKmDstne,
     this.cctvNm,
     this.cctvUrl,
-    required this.spd
+    required this.spd,
+    required this.xCord,
+    required this.yCord
   });
 }

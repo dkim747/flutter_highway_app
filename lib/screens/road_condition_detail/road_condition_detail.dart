@@ -1,3 +1,6 @@
+import 'dart:ffi';
+import 'dart:math';
+
 import 'package:app1/common_model/bookmark/bookmark.dart';
 import 'package:app1/common_model/bookmark/service/bookmark_service_factory.dart';
 import 'package:app1/common_model/bookmark/service/interface_bookmark_service.dart';
@@ -7,6 +10,7 @@ import 'package:app1/screens/road_condition_detail/widgets/menu_widget.dart';
 import 'package:app1/screens/road_condition_detail/widgets/speedbar_with_direction_arrow_widget.dart';
 import 'package:app1/screens/road_condition_detail/widgets/direction_switching_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../common_widgets/snackbar.dart';
 import '../road_condition/model/routes.dart';
@@ -29,69 +33,94 @@ class RoadConditionDetailScreen extends StatefulWidget {
 
 class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
 
+  RouteInfo? findClosestRouteInfo({
+    required double userLat,
+    required double userLng,
+    required List<RouteInfo> routeList,
+  }) {
+    if (routeList.isEmpty) return null;
+
+    RouteInfo closest = routeList.first;
+    double minDistance = _haversine(userLat, userLng, closest.yCord, closest.xCord);
+
+    for (var route in routeList) {
+      double distance = _haversine(userLat, userLng, route.yCord, route.xCord);
+      if (distance < minDistance) {
+        closest = route;
+        minDistance = distance;
+      }
+    }
+
+    return closest;
+  }
+
+  double _haversine(double lat1, double lng1, double lat2, double lng2) {
+    const earthRadius = 6371;
+
+    double dLat = _degToRad(lat2 - lat1);
+    double dLng = _degToRad(lng2 - lng1);
+
+    double a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(_degToRad(lat1)) * cos(_degToRad(lat2)) *
+            sin(dLng / 2) * sin(dLng / 2);
+
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    return earthRadius * c;
+  }
+
+  double _degToRad(double deg) => deg * pi / 180;
+
   late final BookmarkService bookmarkService;
 
   //T_TRMB_ROUTE_TRFC_CRCM01L1 테이블, cctv 테이블 조인시켜서 가져올듯? 썸네일 있으니
   List<RouteInfo> routeList = [
-    RouteInfo(routeCd: '0010', driveDrctDc: 'E', nodeCtltNm: '한남IC', linkKmDstne: '1.3', cctvNm: '한남IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 38),
-    RouteInfo(routeCd: '0010', driveDrctDc: 'E', nodeCtltNm: '잠원IC', linkKmDstne: '1.38', cctvNm: '잠원IC', spd: 50),
-    RouteInfo(routeCd: '0010', driveDrctDc: 'E', nodeCtltNm: '한남IC', linkKmDstne: '1.3', cctvNm: '한남IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 38),
-    RouteInfo(routeCd: '0010', driveDrctDc: 'E', nodeCtltNm: '한남IC', linkKmDstne: '1.3', cctvNm: '한남IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 80),
-    RouteInfo(routeCd: '0010', driveDrctDc: 'S', nodeCtltNm: '한남IC', linkKmDstne: '1.3', cctvNm: '한남IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 38),
-    RouteInfo(routeCd: '0010', driveDrctDc: 'S', nodeCtltNm: '한남IC', linkKmDstne: '1.3', cctvNm: '한남IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 80),
+    RouteInfo(routeCd: '0010', driveDrctDc: 'E', nodeCtltNm: '한남IC', linkKmDstne: '1.3', cctvNm: '한남IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 38, xCord: 37.52139, yCord: 127.01778),
+    RouteInfo(routeCd: '0010', driveDrctDc: 'E', nodeCtltNm: '잠원IC', linkKmDstne: '1.38', cctvNm: '잠원IC', spd: 50, xCord: 37.5084, yCord: 127.01656),
+    RouteInfo(routeCd: '0010', driveDrctDc: 'E', nodeCtltNm: '반포IC', linkKmDstne: '1.3', cctvNm: '반포IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 38, xCord: 37.48253, yCord: 127.02627),
+    RouteInfo(routeCd: '0010', driveDrctDc: 'E', nodeCtltNm: '서초IC', linkKmDstne: '1.3', cctvNm: '서초IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 55, xCord: 37.46397, yCord: 127.03946),
+    // RouteInfo(routeCd: '0010', driveDrctDc: 'S', nodeCtltNm: '한남IC', linkKmDstne: '1.3', cctvNm: '한남IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 38, xCord: 37.52139, yCord: 127.01778),
+    // RouteInfo(routeCd: '0010', driveDrctDc: 'S', nodeCtltNm: '한남IC', linkKmDstne: '1.3', cctvNm: '한남IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 38, xCord: 37.52139, yCord: 127.01778),
+    // RouteInfo(routeCd: '0010', driveDrctDc: 'S', nodeCtltNm: '한남IC', linkKmDstne: '1.3', cctvNm: '한남IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 38, xCord: 37.52139, yCord: 127.01778),
+    RouteInfo(routeCd: '0010', driveDrctDc: 'E', nodeCtltNm: '양재IC', linkKmDstne: '1.3', cctvNm: '양재IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 20, xCord: 37.45823, yCord: 127.04492),
+    RouteInfo(routeCd: '0010', driveDrctDc: 'E', nodeCtltNm: '금토IC', linkKmDstne: '1.3', cctvNm: '금토IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 100, xCord: 37.410677, yCord: 127.089558),
+    RouteInfo(routeCd: '0010', driveDrctDc: 'E', nodeCtltNm: '대왕판교IC', linkKmDstne: '1.3', cctvNm: '대왕판교IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 20, xCord: 37.40646, yCord: 127.09392),
+    RouteInfo(routeCd: '0010', driveDrctDc: 'E', nodeCtltNm: '판교JC', linkKmDstne: '1.1', cctvNm: '판교분기점_경부', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 34, xCord: 37.40508, yCord: 127.09537),
+    RouteInfo(routeCd: '0010', driveDrctDc: 'E', nodeCtltNm: '판교IC', linkKmDstne: '1.3', cctvNm: '판교IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 120, xCord: 37.38402, yCord: 127.10314),
+    // RouteInfo(routeCd: '0070', driveDrctDc: 'E', nodeCtltNm: '논산JC', linkKmDstne: '1.3', cctvNm: '판교IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 120, xCord: 36.0754, yCord: 127.10193),
+    // RouteInfo(routeCd: '0070', driveDrctDc: 'E', nodeCtltNm: '익산IC', linkKmDstne: '1.3', cctvNm: '판교IC', cctvUrl: "https://exmobile4.hscdn.com/cctv0002image/ch00000002_20250522.184100.000.jpg", spd: 120, xCord: 35.97759, yCord: 127.10678),
   ];
 
   String selectedDirection = Direction.e;
   IconData? selectedIcon;
-  bool isFavorite = false;
+  bool isBookmark = false;
 
   // bool get isLocationGranted =>
   //     Provider.of<PermissionController>(context, listen: false).isLocationGranted ?? false;
 
-
   @override
   void initState() {
     super.initState();
-
     // eventBus.on<LocationSearchEvent>().listen((event) {
     //   LocationController.getEvent();
     // });
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // context.read<PermissionController>().checkPermission();
 
       final route = ModalRoute.of(context)!.settings.arguments as Routes;
       final routeNo = route.routeNo;
 
-      _checkBookmarkState(routeNo, selectedDirection);
+       _checkBookmarkState(routeNo, selectedDirection);
     });
 
     final BookmarkServiceFactory factory = BookmarkServiceFactory();
     bookmarkService = factory.getBookmarkService(widget.serviceType);
   }
 
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //
-  //   if (_isInit) {
-  //     final route = ModalRoute.of(context)!.settings.arguments as Routes;
-  //     final routeNo = route.routeNo;
-  //
-  //     _checkBookmarkState(routeNo, selectedDirection);
-  //
-  //     // Provider.of<PermissionController>(context, listen: false).checkPermission();
-  //
-  //     _isInit = false;
-  //   }
-  // }
-
-  void _checkBookmarkState(String routeNo, String direction) async {
+  void _checkBookmarkState(String? routeNo, String direction) async {
 
     final id = "route$routeNo$direction";
     final bookmark = await bookmarkService.getBookmarkById(id);
     setState(() {
-      isFavorite = bookmark != null;
+      isBookmark = bookmark != null;
     });
   }
 
@@ -162,13 +191,11 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
                 final permissionStatus = await Permission.location.status;
 
                 if(permissionStatus.isDenied) {
-                  // openAppSettings();
                   print("허용 안함 한번 클릭??=============");
-                  await Permission.location.request();   
-                   print("허용 안함 한번 클릭22222222222??=============");               
+                  await Permission.location.request();
                 } else if(permissionStatus.isPermanentlyDenied) {
                   print("평생 거부 클릭=============");
-                  openAppSettings();                  
+                  openAppSettings();
                 }
               },
               child: const Text('확인'),
@@ -186,8 +213,20 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
       final permissionStatus = await Permission.location.status;
 
       if(permissionStatus.isGranted) {
-        print("현재 권한 상태는 수락====================");
-        //가까운 도로 위치 보여주는 함수 작성하면 댐
+        print("현재 권한 상태는 허용====================");
+        Position? position = await Geolocator.getCurrentPosition();
+
+        print("position=============================${position.latitude}=====${position.longitude}");
+
+        RouteInfo? nearestRoute = findClosestRouteInfo(
+          userLat: position.latitude,
+          userLng: position.longitude,
+          routeList: routeList,
+        );
+
+        if (nearestRoute != null) {
+          print("가장 가까운 지점은 ${nearestRoute.nodeCtltNm} 입니다.");
+        }
 
       } else if(permissionStatus.isDenied) {
         print("현재 권한 상태는 거절====================");
@@ -224,6 +263,8 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
     final String routeNo = route.routeNo;
     final String startPoint = route.startPoint;
     final String endPoint = route.endPoint;
+
+    // _checkBookmarkState(routeNo, selectedDirection);
 
     // final filteredRouteList = routeList.where((r) =>
     //   r.driveDrctDc == selectedDirection &&
@@ -264,7 +305,8 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
                 selectedDirection = direction;
                 // routeList = filteredRoute;
               });
-              _checkBookmarkState(route.routeNo, direction);
+
+              _checkBookmarkState(routeNo, direction);
             },
             startPoint: startPoint,
             endPoint: endPoint,
@@ -288,10 +330,10 @@ class _RoadConditionDetailScreenState extends State<RoadConditionDetailScreen> {
             //   });
             // },
             routeNo: routeNo,
-            isFavorite: isFavorite,
+            isFavorite: isBookmark,
             onTabFavorite: () {
               setState(() {
-                isFavorite = !isFavorite;
+                isBookmark = !isBookmark;
               });
             },
             bookmark: Bookmark(id: id, type: "route", objectMap: route.toJson(), direction: selectedDirection),
